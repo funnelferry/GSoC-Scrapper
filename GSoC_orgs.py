@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from pandas import DataFrame
-from array import *
+
 
 
 url = 'https://summerofcode.withgoogle.com/archive/2018/organizations/'
@@ -27,7 +27,7 @@ for org_url in link_list:
         r = requests.get(org_url)
         soup = BeautifulSoup(r.content, 'html.parser')
         org = soup.find('div', class_="banner__text")              
-        OrgName.append(org.h3.text)
+        OrgName.append(f"=HYPERLINK(\"{org_url}\",\"{org.h3.text}\")")
         technologies = soup.find_all('li', class_="organization__tag--technology")
         # for technology in technologies:
         #         lisat[i,j] = technology.text
@@ -36,7 +36,7 @@ for org_url in link_list:
         irc = soup.select_one(".org__meta-button")['href']
         Contactlink.append(irc)
 
-table = {'Org' : OrgName, 'Link' : link_list , 'Contact' : Contactlink}
+table = {'Org' : OrgName , 'Contact' : Contactlink}
 
 df = DataFrame(table)
 export_csv = df.to_csv(r'Resuls.csv')
