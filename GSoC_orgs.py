@@ -2,8 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 from pandas import DataFrame
 
-
-
 url = 'https://summerofcode.withgoogle.com/archive/2018/organizations/'
 
 r = requests.get(url)
@@ -21,13 +19,14 @@ for row in rows:
 OrgName = []
 Contactlink = []
 techlist = []
+slots = []
 
 for org_url in link_list:
         lisat = []
         r = requests.get(org_url)
-        soup = BeautifulSoup(r.content, 'html.parser')
+        soup = BeautifulSoup(r.text, 'html.parser')
         org = soup.find('div', class_="banner__text")              
-        OrgName.append(f"=HYPERLINK(\"{org_url}\",\"{org.h3.text}\")")
+        # OrgName.append(f"=HYPERLINK(\"{org_url}\",\"{org.h3.text}\")")
         technologies = soup.find_all('li', class_="organization__tag--technology")
         for technology in technologies:
                 lisat.append(technology.text)
@@ -35,8 +34,14 @@ for org_url in link_list:
         techlist.append(mys)
         irc = soup.select_one(".org__meta-button")['href']
         Contactlink.append(irc)
+        projects = soup.find('ul', class_="project-list-container")
+        slots = projects.findChildren('li')
+        slots.append(len(slots))
+        ideas = soup.select_one(".org__button-container")
+        print(ideas)
+        
 
-table = {'Org' : OrgName , 'Technologies' : techlist , 'Contact' : Contactlink}
+table = {'Org' : OrgName , 'Technologies' : techlist , 'Contact' : Contactlink, 'Slots' : slots}
 
 df = DataFrame(table)
 export_csv = df.to_csv(r'GSoC-Orgs.csv')
